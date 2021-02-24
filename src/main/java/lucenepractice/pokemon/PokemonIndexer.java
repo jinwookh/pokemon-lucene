@@ -35,7 +35,7 @@ public class PokemonIndexer {
     private static void indexPokemons(List<String[]> pokemonList, String[] statNames) throws IOException {
         IndexWriter indexWriter = getIndexWriter();
 
-        for (int i = 1; i < 2; i++) {
+        for (int i = 1; i < pokemonList.size(); i++) {
             List<String> singlePokemon = Arrays.asList(pokemonList.get(i));
             indexSinglePokemon(statNames, indexWriter, singlePokemon);
         }
@@ -92,13 +92,6 @@ public class PokemonIndexer {
 
         if(pokemonStat.isEmpty()) {
             return Typetype.String;
-        }
-
-        try {
-            int integer = Integer.valueOf(pokemonStat);
-            return Typetype.Integer;
-        } catch (Exception e) {
-
         }
 
         try {
