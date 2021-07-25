@@ -24,9 +24,9 @@ public class PokemonIndexer {
 
         List<String[]> pokemonList = csvReader.readAll();
 
-        String[] statNames = pokemonList.get(0);
+        String[] statTitles = pokemonList.get(0);
 
-        indexPokemons(pokemonList, statNames);
+        indexPokemons(pokemonList, statTitles);
 
         System.out.println(pokemonList);
 
@@ -73,7 +73,7 @@ public class PokemonIndexer {
         FieldType type = new FieldType();
         type.setStored(true);
 
-        Field field = new Field(statFieldName, pokemonStatValue, type);
+        Field field = new StringField(statFieldName, pokemonStatValue, Field.Store.YES);
         document.add(field);
     }
 
