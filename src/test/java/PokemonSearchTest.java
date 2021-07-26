@@ -1,4 +1,5 @@
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
@@ -67,7 +68,7 @@ public class PokemonSearchTest {
     }
 
     @Test
-    void 악타입만_필터링() throws IOException {
+    void 악타입만_포켓몬() throws IOException {
         File file = new File("hi");
 
         Directory directory = FSDirectory.open(file.toPath());
@@ -96,7 +97,7 @@ public class PokemonSearchTest {
 
 
     @Test
-    void 공격력이_가장_강한_악타입_포켓몬_5마리() throws IOException {
+    void 공격력이_120_이상_땅타입_포켓몬() throws IOException {
         File file = new File("hi");
 
         Directory directory = FSDirectory.open(file.toPath());
@@ -105,10 +106,26 @@ public class PokemonSearchTest {
 
         IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
 
-        Query query = new BooleanQuery.Builder().build();
-        TopDocs search = indexSearcher.search(query, 50);
+        Term type1DarkTerm = new Term("type1", "ground");
+        TermQuery type1DarkTermQuery = new TermQuery(type1DarkTerm);
+        Term type2DarkTerm = new Term("type2", "ground");
+        TermQuery type2DarkTermQuery = new TermQuery(type2DarkTerm);
+        Query doubleQuery = DoublePoint.newRangeQuery("attack", 120, 130);
 
-        for (int i = 0; i < 50; i++) {
+        BooleanQuery darkTypeQuery = new BooleanQuery.Builder()
+                .add(type1DarkTermQuery, BooleanClause.Occur.SHOULD)
+                .add(type2DarkTermQuery, BooleanClause.Occur.SHOULD)
+                .build();
+
+
+        BooleanQuery outerQuery = new BooleanQuery.Builder()
+                .add(darkTypeQuery, BooleanClause.Occur.FILTER)
+                .add(doubleQuery, BooleanClause.Occur.FILTER)
+                .build();
+
+        TopDocs search = indexSearcher.search(outerQuery, 1000);
+
+        for (int i = 0; i < search.totalHits; i++) {
             Document doc = indexSearcher.doc(search.scoreDocs[i].doc);
             System.out.println(doc.get("name"));
         }
