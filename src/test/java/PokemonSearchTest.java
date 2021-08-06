@@ -1,7 +1,17 @@
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.assertj.core.api.Assertions;
@@ -9,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class PokemonSearchTest {
@@ -129,5 +138,46 @@ public class PokemonSearchTest {
             Document doc = indexSearcher.doc(search.scoreDocs[i].doc);
             System.out.println(doc.get("name"));
         }
+    }
+
+    @Test
+    void 공격력이_가장_큰_불타입_포켓몬_5마리() throws IOException {
+        File file = new File("hi");
+
+        Directory directory = FSDirectory.open(file.toPath());
+
+        DirectoryReader directoryReader = DirectoryReader.open(directory);
+
+        IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
+
+        Term type1DarkTerm = new Term("type1", "fire");
+        TermQuery type1DarkTermQuery = new TermQuery(type1DarkTerm);
+        Term type2DarkTerm = new Term("type2", "fire");
+        TermQuery type2DarkTermQuery = new TermQuery(type2DarkTerm);
+
+        BooleanQuery darkTypeQuery = new BooleanQuery.Builder()
+                .add(type1DarkTermQuery, BooleanClause.Occur.SHOULD)
+                .add(type2DarkTermQuery, BooleanClause.Occur.SHOULD)
+                .build();
+
+
+        BooleanQuery outerQuery = new BooleanQuery.Builder()
+                .add(darkTypeQuery, BooleanClause.Occur.FILTER)
+                .build();
+
+        SortField sortField = new SortField("attack", SortField.Type.DOUBLE, true);
+        Sort sort = new Sort(sortField);
+
+        TopDocs search = indexSearcher.search(outerQuery, 1000, sort);
+
+        for (int i = 0; i < search.totalHits; i++) {
+            Document doc = indexSearcher.doc(search.scoreDocs[i].doc);
+            System.out.println(doc.get("name") + doc.get("attack"));
+        }
+    }
+
+    @Test
+    void Natural_Cure_능력을_가진_포켓몬() throws IOException {
+        // TODO
     }
 }

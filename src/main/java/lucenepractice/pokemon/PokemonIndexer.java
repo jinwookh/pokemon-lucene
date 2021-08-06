@@ -2,7 +2,15 @@ package lucenepractice.pokemon;
 
 import com.opencsv.CSVReader;
 import lucenepractice.Typetype;
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoubleDocValuesField;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -46,8 +54,17 @@ public class PokemonIndexer {
         for (int i = 0; i < singlePokemon.size(); i++) {
             indexSinglePokemonStat(singlePokemon.get(i), statNames[i], document);
         }
+        indexSinglePokemonSource(singlePokemon, document);
         indexWriter.addDocument(document);
         indexWriter.commit();
+    }
+
+    private static void indexSinglePokemonSource(List<String> singlePokemon, Document document) {
+        FieldType type = new FieldType();
+        type.setStored(true);
+
+        Field field = new StringField("_source", singlePokemon.toString(), Field.Store.YES);
+        document.add(field);
     }
 
     private static void indexSinglePokemonStat(String pokemonStat, String statName, Document document) throws IOException {
@@ -84,13 +101,16 @@ public class PokemonIndexer {
     }
 
     private static void indexDouble(Document document, String pokemonStatValue, String statFieldName) {
-        DoublePoint doublePoint = new DoublePoint(statFieldName,Double.parseDouble(pokemonStatValue));
-        document.add(doublePoint);
+        NumericDocValuesField field = new DoubleDocValuesField(statFieldName, Double.parseDouble(pokemonStatValue));
+        StoredField storedField = new StoredField(statFieldName, Double.parseDouble(pokemonStatValue));
+
+        document.add(field);
+        document.add(storedField);
     }
 
     private static Typetype checkType(String pokemonStat) {
 
-        if(pokemonStat.isEmpty()) {
+        if (pokemonStat.isEmpty()) {
             return Typetype.String;
         }
 
