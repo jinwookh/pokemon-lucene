@@ -150,19 +150,19 @@ public class PokemonSearchTest {
 
         IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
 
-        Term type1DarkTerm = new Term("type1", "fire");
-        TermQuery type1DarkTermQuery = new TermQuery(type1DarkTerm);
-        Term type2DarkTerm = new Term("type2", "fire");
-        TermQuery type2DarkTermQuery = new TermQuery(type2DarkTerm);
+        Term type1Term = new Term("type1", "fire");
+        TermQuery type1TermQuery = new TermQuery(type1Term);
+        Term type2Term = new Term("type2", "fire");
+        TermQuery type2TermQuery = new TermQuery(type2Term);
 
-        BooleanQuery darkTypeQuery = new BooleanQuery.Builder()
-                .add(type1DarkTermQuery, BooleanClause.Occur.SHOULD)
-                .add(type2DarkTermQuery, BooleanClause.Occur.SHOULD)
+        BooleanQuery fireTypeQuery = new BooleanQuery.Builder()
+                .add(type1TermQuery, BooleanClause.Occur.SHOULD)
+                .add(type2TermQuery, BooleanClause.Occur.SHOULD)
                 .build();
 
 
         BooleanQuery outerQuery = new BooleanQuery.Builder()
-                .add(darkTypeQuery, BooleanClause.Occur.FILTER)
+                .add(fireTypeQuery, BooleanClause.Occur.FILTER)
                 .build();
 
         SortField sortField = new SortField("attack", SortField.Type.DOUBLE, true);

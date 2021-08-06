@@ -4,11 +4,11 @@ import com.opencsv.CSVReader;
 import lucenepractice.Typetype;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoubleDocValuesField;
+import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
@@ -102,9 +102,11 @@ public class PokemonIndexer {
 
     private static void indexDouble(Document document, String pokemonStatValue, String statFieldName) {
         NumericDocValuesField field = new DoubleDocValuesField(statFieldName, Double.parseDouble(pokemonStatValue));
+        DoublePoint doublePoint = new DoublePoint(statFieldName, Double.parseDouble(pokemonStatValue));
         StoredField storedField = new StoredField(statFieldName, Double.parseDouble(pokemonStatValue));
 
         document.add(field);
+        document.add(doublePoint);
         document.add(storedField);
     }
 
