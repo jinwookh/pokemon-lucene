@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PokemonIndexer {
     public static void main(String[] args) throws IOException {
@@ -68,8 +69,25 @@ public class PokemonIndexer {
     }
 
     private static void indexSinglePokemonStat(String pokemonStat, String statName, Document document) throws IOException {
+        if (statName.equals("abilities")) {
+            indexAbilitiesStat(pokemonStat, statName, document);
+            return;
+        }
+        // "['Overgrow', 'Chlorophyll']"
+
         Typetype typetype = checkType(pokemonStat);
         indexPokemonStat(typetype, pokemonStat, document, statName);
+    }
+
+    private static void indexAbilitiesStat(String pokemonStat, String statName, Document document) {
+        String processed1 = pokemonStat.substring(1, pokemonStat.length() - 1);
+        String processed2 = processed1.replace("\'", "");
+        String[] splittedString = processed2.split(",");
+        List<String> abilitiesStat = Arrays.stream(splittedString).map(String::trim).collect(Collectors.toList());
+
+        for (String abilityStat : abilitiesStat) {
+            indexString(document, abilityStat, statName);
+        }
     }
 
     private static void indexPokemonStat(Typetype typetype, String pokemonStatValue, Document document, String statFieldName) {

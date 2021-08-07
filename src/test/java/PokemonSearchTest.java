@@ -178,6 +178,21 @@ public class PokemonSearchTest {
 
     @Test
     void Natural_Cure_능력을_가진_포켓몬() throws IOException {
-        // TODO
+        File file = new File("hi");
+
+        Directory directory = FSDirectory.open(file.toPath());
+
+        DirectoryReader directoryReader = DirectoryReader.open(directory);
+
+        IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
+
+        TermQuery query = new TermQuery(new Term("abilities", "Natural Cure"));
+
+        TopDocs search = indexSearcher.search(query, 1000);
+
+        for (int i = 0; i < search.totalHits; i++) {
+            Document doc = indexSearcher.doc(search.scoreDocs[i].doc);
+            System.out.println(doc.get("name") +" " + doc.get("abilities"));
+        }
     }
 }
